@@ -1,12 +1,14 @@
 // Get a JS representation of the canvas element in the DOM
 var canvas = document.getElementById('canvas');
+	canvas.height = document.height;
+	canvas.width = document.width;
 var cx = canvas.getContext('2d');
 
 /* CONFIG VARIABLES */
-var waveYMax = 0.8;
-var waveYMin = 0.2;
-var waveVelMax = 3;
-var waveVelMin = -3;
+var waveYMax = 0.7;
+var waveYMin = 0.3;
+var waveVelMax = 2.5;
+var waveVelMin = 0.5;
 var waveCount = 5;
 var frameStartMin = 0;
 var frameStartMax = 360;
@@ -60,7 +62,7 @@ function Wave(){
     },
   ];
   //this.color = randomColor();  
-  this.color = "rgba(0,0,0,0.8)";
+  this.color = "rgba(255,255,255,0.8)";
   this.frames=0;
   return this; 
 };
@@ -84,12 +86,18 @@ function moveWave(wave){
   	 *
   	 */
 		wave.points[point].y = ( ( Math.sin(wave.points[point].frames * Math.PI/180) + 1) / 2 ) * waveRange + waveOffset;
-		wave.points[point].frames = wave.points[point].frames <= 359 ? wave.points[point].frames += 1 : 0;
+		wave.points[point].frames = wave.points[point].frames <= 359 ? wave.points[point].frames += wave.points[point].velocity : 0;
   }  
 }
 
 //Render the wave to the canvas based on its current coordinates
 function renderWave(wave){
+
+cx.shadowOffsetX = 0;
+cx.shadowOffsetY = 0;
+cx.shadowBlur    = 60;
+cx.shadowColor   = 'rgba(255, 255, 255, 0.8)';
+
  cx.beginPath();
  cx.moveTo(
    wave.points[0].x, wave.points[0].y
@@ -101,6 +109,8 @@ function renderWave(wave){
  );
  cx.strokeStyle = wave.color;
  cx.stroke();
+ 
+cx.shadowColor   = 'rgba(255, 255, 255, 0)';
 }
 
 // GO, GO, GO !
@@ -109,6 +119,6 @@ setInterval(function(){
   	moveWave(waves[i]);
   	renderWave(waves[i]);
   }; 
-  cx.fillStyle = "rgba(255,255,255,0.1)";
+  cx.fillStyle = "rgba(0,0,0,0.05)";
   cx.fillRect(0, 0, width, height);
-},1000/40);
+},1000/30);
