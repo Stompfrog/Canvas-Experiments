@@ -1,8 +1,21 @@
 // Get a JS representation of the canvas element in the DOM
 var canvas = document.getElementById('canvas');
+var cx = canvas.getContext('2d');
+
+/* CONFIG VARIABLES */
+var waveYMax = 0.8;
+var waveYMin = 0.2;
+var waveVelMax = 3;
+var waveVelMin = -3;
+var waveCount = 5;
+var frameStartMin = 0;
+var frameStartMax = 360;
+
+/* CALCULATED VARIABLES */
 var height = canvas.height;
 var width = canvas.width;
-var cx = canvas.getContext('2d');
+var waveRange = (waveYMax - waveYMin) * height;
+var waveOffset = (height-waveRange) / 2;
 
 // A function to generate a random number between an upper and lower limit
 function randomNumberBetween(x,y){
@@ -18,39 +31,37 @@ function randomColor(){
  return color;
 }
 
-/* CONFIG VARIABLES */
-var waveYMax = 0.8;
-var waveYMin = 0.2;
-var waveVelMax = 3;
-var waveVelMin = -3;
-var waveCount = 5;
-
-// Creates waves described by 4 points, each of which has a Y velocity
+// Creates waves described by 4 points
 function Wave(){
   this.points = [
     {
       x : width * 0/3,
       y : randomNumberBetween(waveYMin,waveYMax) * height,
-      velocity : randomNumberBetween(waveVelMin,waveVelMax)
+      velocity : randomNumberBetween(waveVelMin,waveVelMax),
+      frames : Math.floor(randomNumberBetween(frameStartMin,frameStartMax))
     },
     {
       x : width * 1/3,
       y : randomNumberBetween(waveYMin,waveYMax) * height,
-      velocity : randomNumberBetween(waveVelMin,waveVelMax)
+      velocity : randomNumberBetween(waveVelMin,waveVelMax),
+      frames : Math.floor(randomNumberBetween(frameStartMin,frameStartMax))
     },
     {
       x : width * 2/3,
       y : randomNumberBetween(waveYMin,waveYMax) * height,
-      velocity : randomNumberBetween(waveVelMin,waveVelMax)
+      velocity : randomNumberBetween(waveVelMin,waveVelMax),
+      frames : Math.floor(randomNumberBetween(frameStartMin,frameStartMax))
     },
     {
       x : width * 3/3,
       y : randomNumberBetween(waveYMin,waveYMax) * height,
-      velocity : randomNumberBetween(waveVelMin,waveVelMax)
+      velocity : randomNumberBetween(waveVelMin,waveVelMax),
+      frames : Math.floor(randomNumberBetween(frameStartMin,frameStartMax))
     },
   ];
   //this.color = randomColor();  
-  this.color = "#000";
+  this.color = "rgba(0,0,0,0.8)";
+  this.frames=0;
   return this; 
 };
 
@@ -61,14 +72,19 @@ for(var i=0; i<waveCount; i++ ){
 	waves.push(new Wave());
 }
 
-// Update the y coordinate of the point based on its velocity
+// Update the y coordinate of each point of the wave
 function moveWave(wave){
   for (point in wave.points){
-    // If its too high or too low on the canvas bounce it back
-    if(wave.points[point].y/height > waveYMax || wave.points[point].y/height < waveYMin){
-      wave.points[point].velocity = wave.points[point].velocity * -1;
-    }
-    wave.points[point].y += wave.points[point].velocity;
+  	/**
+  	 * Calculate an appealing transition from 1 to 0 based on a transformation  
+  	 * of the sine of current animation frame and then transform the result to be 
+  	 * within the bounds defined by the config variables.
+  	 *
+  	 * After each update increment the frames count in a cycle from 0 - 359 (360 degrees)
+  	 *
+  	 */
+		wave.points[point].y = ( ( Math.sin(wave.points[point].frames * Math.PI/180) + 1) / 2 ) * waveRange + waveOffset;
+		wave.points[point].frames = wave.points[point].frames <= 359 ? wave.points[point].frames += 1 : 0;
   }  
 }
 
@@ -95,6 +111,4 @@ setInterval(function(){
   }; 
   cx.fillStyle = "rgba(255,255,255,0.1)";
   cx.fillRect(0, 0, width, height);
-},1000/60);
-
-
+},1000/40);
