@@ -5,30 +5,28 @@ function Wave(){
     {
       x : width * 0/3,
       y : randomNumberBetween(waveYMin,waveYMax) * height,
-      velocity : randomNumberBetween(waveVelMin,waveVelMax),
-      frames : Math.floor(randomNumberBetween(frameStartMin,frameStartMax))
+      frames : Math.floor(randomNumberBetween(waveFrameStartMin,waveFrameStartMax))
     },
     {
       x : width * 1/3,
       y : randomNumberBetween(waveYMin,waveYMax) * height,
-      velocity : randomNumberBetween(waveVelMin,waveVelMax),
-      frames : Math.floor(randomNumberBetween(frameStartMin,frameStartMax))
+      frames : Math.floor(randomNumberBetween(waveFrameStartMin,waveFrameStartMax))
     },
     {
       x : width * 2/3,
       y : randomNumberBetween(waveYMin,waveYMax) * height,
-      velocity : randomNumberBetween(waveVelMin,waveVelMax),
-      frames : Math.floor(randomNumberBetween(frameStartMin,frameStartMax))
+      frames : Math.floor(randomNumberBetween(waveFrameStartMin,waveFrameStartMax))
     },
     {
       x : width * 3/3,
       y : randomNumberBetween(waveYMin,waveYMax) * height,
-      velocity : randomNumberBetween(waveVelMin,waveVelMax),
-      frames : Math.floor(randomNumberBetween(frameStartMin,frameStartMax))
+      frames : Math.floor(randomNumberBetween(waveFrameStartMin,waveFrameStartMax))
     },
   ];
-
-  this.color = "rgba(0,0,0,0.6)";
+  
+  this.velocity = randomNumberBetween(waveVelMin,waveVelMax);
+  
+  this.color = "rgba(255,255,255,0.8)";
 
   this.frames=0;
   
@@ -44,23 +42,32 @@ function Wave(){
 	 */
 	 for (point in this.points){
 			this.points[point].y = ( ( Math.sin(this.points[point].frames * Math.PI/180) + 1) / 2 ) * waveRange + waveOffset;
-			this.points[point].frames = this.points[point].frames <= 359 ? this.points[point].frames += 1 : 0;
+			this.points[point].frames = this.points[point].frames <= 359 ? this.points[point].frames += this.velocity : 0;
 	  }  
 	}
 		
 	//Render the wave to the canvas based on its current coordinates
 	this.renderWave = function(wave){
-	 cx.beginPath();
-	 cx.moveTo(
-	   this.points[0].x, this.points[0].y
-	 );
-	 cx.bezierCurveTo(
-	   this.points[1].x, this.points[1].y, 
-	   this.points[2].x, this.points[2].y, 
-	   this.points[3].x, this.points[3].y
-	 );
-	 cx.strokeStyle = this.color;
-	 cx.stroke();
+	
+		cx.shadowOffsetX = 0;
+		cx.shadowOffsetY = 0;
+		cx.shadowBlur    = 60;
+		cx.shadowColor   = 'rgba(255, 255, 255, 0.8)';
+		
+		cx.beginPath();
+		cx.moveTo(
+		 this.points[0].x, this.points[0].y
+		);
+		cx.bezierCurveTo(
+		 this.points[1].x, this.points[1].y, 
+		 this.points[2].x, this.points[2].y, 
+		 this.points[3].x, this.points[3].y
+		);
+		cx.strokeStyle = this.color;
+		cx.stroke();
+		
+		cx.shadowColor   = 'rgba(255, 255, 255, 0)';
+
 	}
 	  
   return this; 
